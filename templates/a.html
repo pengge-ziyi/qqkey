@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>扫码登录</title>
+</head>
+<script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js">
+</script>
+<body>
+
+<h1>扫码登录</h1>
+
+<button onclick="login()">获取二维码</button>
+
+<p id="p"></p>
+
+<div id="tp" hidden></div>
+
+<div id="text" hidden>
+
+<p>uin <input id="uin" type="text" value="u"></p>
+
+<p>skey <input id="skey" type="text" value="s"></p>
+
+<p>p_skey <input id="p_skey" type="text" value="p"></p>
+
+<p>gtk <input id="gtk" type="text" value="g"></p>
+
+</div>
+
+</body>
+
+<script>
+    function login() {
+       $.ajax({
+        url: 'login', //请求的url
+        type: 'get', //请求的方式
+        dataType:'json',
+        data: 'q=login',
+        success:function (msg){
+            var tp =msg.tp;
+            var qrsig=msg.qrsig;
+            $("#tp").html('<img src="data:image/png;base64,'+tp+'">');
+            $("#tp").attr("style","display:block;");
+            t= setInterval(zt,1000,qrsig);
+        }
+
+        });
+    }
+
+    function zt(qrsig) {
+       $.ajax({
+        url: 'zt', //请求的url
+        type: 'get', //请求的方式
+        data: 'qrsig='+qrsig,
+           dataType:'json',
+        success:function (msg){
+            var type= msg.type;
+            var uin = msg.uin;
+            var skey= msg.skey;
+            var p_skey= msg.p_skey;
+            var gtk= msg.gtk;
+            $("#p").html('<p id="p">'+type+' </p>');
+            if (type=='登录成功'){
+                clearInterval(t);
+                $("#uin").val(uin);
+                $("#skey").val(skey);
+                $("#p_skey").val(p_skey);
+                $("#gtk").val(gtk);
+
+                $("#tp").attr("style","display:none;");
+                $("#text").attr("style","display:block;");
+
+            }
+
+        }
+
+       });
+    }
+</script>
+
+</html>
